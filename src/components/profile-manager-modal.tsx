@@ -7,6 +7,7 @@ import { useUserData, type ProfileDraft } from "@/hooks/use-user-data";
 import { getToastErrorMessage, notify, notifyPromise } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "motion/react";
+import { OtpInput } from "@/components/ui/otp-input";
 
 const EMPTY_PROFILE_FORM: ProfileDraft = {
   name: "",
@@ -218,15 +219,13 @@ export function ProfileManagerModal({ isOpen, onClose, onProfileCreated, forceCr
     }
   }
 
-  async function handleProfileAccess(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
+  async function performProfileAccess(passwordToTry: string) {
     const targetProfileId = pendingSwitchProfileId || activeProfileId;
     const targetProfile = profiles.find((profile) => profile.id === targetProfileId);
 
     if (!targetProfile || profileSaving) return;
 
-    if (!profileAccessPassword) {
+    if (!passwordToTry) {
       notify.warning({
         title: "Password required",
         description: targetProfile.passwordHint ? `Hint: ${targetProfile.passwordHint}` : "Enter the profile password.",
@@ -240,8 +239,8 @@ export function ProfileManagerModal({ isOpen, onClose, onProfileCreated, forceCr
     try {
       const isUnlocking = targetProfile.id === activeProfileId && isProfileLocked;
       const action = isUnlocking
-        ? unlockProfile(targetProfile.id, profileAccessPassword)
-        : switchProfile(targetProfile.id, profileAccessPassword);
+        ? unlockProfile(targetProfile.id, passwordToTry)
+        : switchProfile(targetProfile.id, passwordToTry);
 
       await notifyPromise(action, {
         loading: {
@@ -267,10 +266,15 @@ export function ProfileManagerModal({ isOpen, onClose, onProfileCreated, forceCr
       setProfilePasswordConfirm("");
       onClose();
     } catch (accessError) {
-      setProfileMessage(accessError instanceof Error ? accessError.message : "Unable to unlock profile.");
+      setProfileMessage(accessError instanceof Error ? accessError.message : "Incorrect password.");
     } finally {
       setProfileSaving(false);
     }
+  }
+
+  async function handleProfileAccess(event?: FormEvent<HTMLFormElement>) {
+    if (event) event.preventDefault();
+    await performProfileAccess(profileAccessPassword);
   }
 
   function handleLogout() {
@@ -509,18 +513,23 @@ export function ProfileManagerModal({ isOpen, onClose, onProfileCreated, forceCr
                     <p className="text-[13px] text-muted mb-6">Enter PIN to continue</p>
 
                     <form onSubmit={handleProfileAccess} className="w-full flex flex-col items-center gap-4">
-                      <div className="w-full max-w-[200px]">
-                        <input
-                          ref={passwordInputRef}
-                          type="password"
+                      <div className="w-full flex flex-col items-center">
+                        <OtpInput
+                          length={6}
+                          size="sm"
+                          mask={true}
+                          type="both"
                           value={profileAccessPassword}
-                          onChange={(event) => setProfileAccessPassword(event.target.value)}
-                          placeholder="••••••"
-                          className="w-full bg-transparent border-b-2 border-card-border py-2.5 text-center text-2xl tracking-[0.5em] text-foreground font-mono focus:outline-none focus:border-b-accent transition-all placeholder:tracking-[0.3em] placeholder:text-lg placeholder:text-muted/40"
-                          autoFocus
+                          onChange={(val) => {
+                            setProfileAccessPassword(val);
+                            if (profileMessage) setProfileMessage("");
+                          }}
+                          onComplete={(code) => void performProfileAccess(code)}
+                          status={profileMessage || error ? "error" : "idle"}
+                          autoFocus={true}
                         />
                         {(passwordPromptProfile.passwordHint || profileMessage || error) && (
-                          <p className={`text-[12px] text-center mt-2.5 font-medium ${profileMessage || error ? 'text-red-400' : 'text-muted'}`}>
+                          <p className={`text-[12px] text-center mt-3 font-medium ${profileMessage || error ? 'text-red-400' : 'text-muted'}`}>
                             {profileMessage || error || `Hint: ${passwordPromptProfile.passwordHint}`}
                           </p>
                         )}

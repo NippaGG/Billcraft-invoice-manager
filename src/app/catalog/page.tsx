@@ -19,6 +19,7 @@ import ClockIcon from "@/components/icons/clock-icon";
 import PenIcon from "@/components/icons/pen-icon";
 import TrashIcon from "@/components/icons/trash-icon";
 import type { AnimatedIconHandle } from "@/components/icons/types";
+import { DeleteButton } from "@/components/ui/delete-button";
 import { 
   Package, 
   Plus, 
@@ -178,9 +179,6 @@ export default function Catalog() {
   }
 
   async function handleDeleteItem(itemId: string, name: string) {
-    const confirmed = window.confirm(`Are you sure you want to delete "${name}" from the catalog?`);
-    if (!confirmed) return;
-
     try {
       await notifyPromise(deleteCatalogItem(itemId), {
         loading: {
@@ -416,21 +414,19 @@ export default function Catalog() {
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-smooth">
+                  <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-smooth">
                     <button
                       onClick={() => openEdit(item)}
-                      className="size-7 inline-flex items-center justify-center rounded-lg bg-background border border-card-border text-muted hover:border-foreground/20 hover:text-foreground hover:shadow-xs transition-all cursor-pointer"
+                      className="size-8 inline-flex items-center justify-center rounded-lg bg-background border border-card-border text-muted hover:border-foreground/20 hover:text-foreground hover:shadow-xs transition-all cursor-pointer"
                       aria-label="Edit catalog item"
                     >
                       <PenIcon size={14} />
                     </button>
-                    <button
-                      onClick={() => handleDeleteItem(item.id, item.name)}
-                      className="size-7 inline-flex items-center justify-center rounded-lg bg-background border border-card-border text-muted hover:border-foreground/20 hover:text-foreground hover:shadow-xs transition-all cursor-pointer"
-                      aria-label="Delete catalog item"
-                    >
-                      <TrashIcon size={14} />
-                    </button>
+                    <DeleteButton
+                      size="sm"
+                      className="border border-card-border/80 shadow-xs"
+                      onConfirm={() => handleDeleteItem(item.id, item.name)}
+                    />
                   </div>
                 </div>
               </div>

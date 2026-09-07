@@ -14,6 +14,8 @@ import {
   Minus,
   Tag,
 } from "lucide-react";
+import { DurationPicker, parseDurationString, formatDurationString } from "@/components/ui/duration-picker";
+import { DeleteButton } from "@/components/ui/delete-button";
 
 export type TaskForm = {
   title: string;
@@ -224,14 +226,15 @@ export function TaskFormModal({
           <label className="text-[11px] font-bold text-muted tracking-wider uppercase" htmlFor="task-estimate">
             Estimate
           </label>
-          <div className="relative">
-            <Clock className="absolute left-3 top-2.5 size-4 text-muted/50 pointer-events-none" />
-            <input
-              id="task-estimate"
-              value={form.estimate}
-              onChange={(event) => setForm({ ...form, estimate: event.target.value })}
-              placeholder="e.g. 2h, 45m"
-              className="field-control pl-9 pr-3 py-2 text-[13px] rounded-lg"
+          <div className="pt-0.5">
+            <DurationPicker
+              value={parseDurationString(form.estimate)}
+              onChange={(val) => setForm({ ...form, estimate: formatDurationString(val) })}
+              onConfirm={(val) => setForm({ ...form, estimate: formatDurationString(val) })}
+              maxHours={99}
+              maxMinutes={59}
+              hoursLabel="h"
+              minutesLabel="m"
             />
           </div>
         </div>
@@ -267,14 +270,14 @@ export function TaskFormModal({
       footerActions={{
         submitLabel: isEditing ? "Save Changes" : "Save Task",
         destructiveAction: isEditing && onDelete ? (
-          <button
-            type="button"
-            onClick={onDelete}
-            disabled={isSaving}
-            className="text-[11px] font-bold text-negative hover:underline active:scale-[0.97] transition-all cursor-pointer"
-          >
-            Delete Task
-          </button>
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-bold text-negative">Delete Task</span>
+            <DeleteButton
+              size="sm"
+              className="border border-negative/30"
+              onConfirm={onDelete}
+            />
+          </div>
         ) : undefined,
       }}
     />

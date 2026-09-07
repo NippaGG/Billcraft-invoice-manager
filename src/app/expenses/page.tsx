@@ -22,6 +22,7 @@ import type { AnimatedIconHandle } from "@/components/icons/types";
 import { PageStatsRow } from "@/components/page-stats-row";
 import { Reveal } from "@/components/reveal";
 import { Plane, Terminal, FileText, Utensils, Megaphone, Scale, Folder, Receipt } from "lucide-react";
+import { DeleteButton } from "@/components/ui/delete-button";
 
 const EMPTY_FORM: ExpenseForm = {
   merchant: "",
@@ -222,9 +223,6 @@ export default function Expenses() {
   }
 
   async function handleDeleteExpense(expenseId: string, merchant: string) {
-    const confirmed = window.confirm(`Are you sure you want to delete the expense at ${merchant}?`);
-    if (!confirmed) return;
-
     try {
       await notifyPromise(deleteExpense(expenseId), {
         loading: {
@@ -393,21 +391,19 @@ export default function Expenses() {
                     )}
                   </div>
 
-                  <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-smooth">
+                  <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-smooth">
                     <button
                       onClick={() => openEdit(expense)}
-                      className="size-7 inline-flex items-center justify-center rounded-lg bg-background border border-card-border text-muted hover:border-foreground/20 hover:text-foreground hover:shadow-xs transition-all cursor-pointer"
+                      className="size-8 inline-flex items-center justify-center rounded-lg bg-background border border-card-border text-muted hover:border-foreground/20 hover:text-foreground hover:shadow-xs transition-all cursor-pointer"
                       aria-label="Edit expense"
                     >
                       <PenIcon size={14} />
                     </button>
-                    <button
-                      onClick={() => handleDeleteExpense(expense.id, expense.merchant)}
-                      className="size-7 inline-flex items-center justify-center rounded-lg bg-background border border-card-border text-muted hover:border-foreground/20 hover:text-foreground hover:shadow-xs transition-all cursor-pointer"
-                      aria-label="Delete expense"
-                    >
-                      <TrashIcon size={14} />
-                    </button>
+                    <DeleteButton
+                      size="sm"
+                      className="border border-card-border/80 shadow-xs"
+                      onConfirm={() => handleDeleteExpense(expense.id, expense.merchant)}
+                    />
                   </div>
                 </div>
               </div>

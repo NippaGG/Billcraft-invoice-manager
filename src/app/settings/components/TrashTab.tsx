@@ -2,6 +2,7 @@ import { useUserData } from "@/hooks/use-user-data";
 import { getToastErrorMessage, notifyPromise } from "@/lib/toast";
 import { AnimatedText } from "@/components/animated-text";
 import { Trash2, Flame, CheckCircle2, FileText, RotateCcw } from "lucide-react";
+import { DeleteButton } from "@/components/ui/delete-button";
 
 export function TrashTab() {
   const { trash, restoreInvoices, emptyTrash } = useUserData();
@@ -41,21 +42,20 @@ export function TrashTab() {
             </p>
           </div>
           {trash.length > 0 ? (
-            <button
-              onClick={async () => {
-                if (confirm("Are you sure you want to permanently delete all items in the Trash Bin? This action cannot be undone.")) {
+            <div className="flex items-center gap-3">
+              <span className="text-[13px] font-bold text-red-500">Empty Trash Bin:</span>
+              <DeleteButton
+                size="md"
+                className="border border-red-500/20"
+                onConfirm={async () => {
                   await notifyPromise(emptyTrash(), {
                     loading: { title: "Emptying trash...", description: "Wiping deleted items." },
                     success: { title: "Trash emptied", description: "All deleted invoices were permanently removed." },
-                    error: (e) => ({ title: "Wipe failed", description: getToastErrorMessage(e, "Unable to empty trash.") })
+                    error: (e) => ({ title: "Wipe failed", description: getToastErrorMessage(e, "Unable to empty trash.") }),
                   });
-                }
-              }}
-              className="px-5 py-2.5 bg-red-500/10 border border-red-500/20 rounded-lg text-[13px] font-bold text-red-500 hover:bg-red-500 hover:text-white active:scale-95 transition-all duration-300 flex items-center gap-2 whitespace-nowrap"
-            >
-              <Flame className="size-[18px]" />
-              Empty Trash Bin
-            </button>
+                }}
+              />
+            </div>
           ) : (
             <div className="px-5 py-2.5 bg-foreground/[0.03] rounded-lg text-[13px] font-bold text-muted/50 flex items-center gap-2 select-none border border-card-border/50">
               <CheckCircle2 className="size-[18px]" />

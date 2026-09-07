@@ -3,6 +3,7 @@ import { useUserData } from "@/hooks/use-user-data";
 import { getToastErrorMessage, notify, notifyPromise } from "@/lib/toast";
 import { AnimatedText } from "@/components/animated-text";
 import { ShieldAlert, Lock, Key, Fingerprint, Loader2, Save, Brain, Lightbulb, AlertTriangle, AlertOctagon, UserMinus, Flame } from "lucide-react";
+import { DeleteButton } from "@/components/ui/delete-button";
 
 export function SecurityTab() {
   const {
@@ -231,22 +232,24 @@ export function SecurityTab() {
           </div>
           <p className="text-[13px] font-medium text-red-500/80 mb-6 max-w-xl">Permanently delete profile data. This action bypasses the trash bin and cannot be undone.</p>
           
-          <div className="flex flex-col sm:flex-row flex-wrap gap-4">
-            <button
-              onClick={async () => {
-                if (confirm("Are you sure you want to delete the current profile?")) {
+          <div className="flex flex-col sm:flex-row flex-wrap items-center gap-4">
+            <div className="flex items-center justify-between gap-3 px-4 py-2.5 border border-red-500/30 rounded-lg bg-red-500/5">
+              <div className="flex items-center gap-2 text-[13px] font-bold text-red-500">
+                <UserMinus className="size-[18px]" />
+                <span>Delete Current Profile</span>
+              </div>
+              <DeleteButton
+                size="sm"
+                className="border border-red-500/30"
+                onConfirm={async () => {
                   await notifyPromise(deleteProfile(), {
                     loading: { title: "Deleting profile...", description: "Please wait." },
                     success: { title: "Profile deleted", description: "The current profile has been removed." },
-                    error: (e) => ({ title: "Delete failed", description: getToastErrorMessage(e, "Unable to delete profile.") })
+                    error: (e) => ({ title: "Delete failed", description: getToastErrorMessage(e, "Unable to delete profile.") }),
                   });
-                }
-              }}
-              className="px-6 py-3 border border-red-500/30 rounded-lg text-[13px] font-bold text-red-500 hover:bg-red-500/10 active:scale-95 transition-all flex items-center justify-center gap-2"
-            >
-              <UserMinus className="size-[18px]" />
-              Delete Current Profile
-            </button>
+                }}
+              />
+            </div>
             <button
               onClick={async () => {
                 if (confirm("Are you sure you want to delete ALL profiles?")) {

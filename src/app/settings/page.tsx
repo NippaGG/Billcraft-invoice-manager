@@ -12,6 +12,7 @@ import { DataTab } from "./components/DataTab";
 import { SecurityTab } from "./components/SecurityTab";
 import { TrashTab } from "./components/TrashTab";
 import { Reveal } from "@/components/reveal";
+import { HookSidebar } from "@/components/ui/hook-sidebar";
 
 type SettingsTab = "profile" | "appearance" | "notifications" | "data" | "security" | "trash";
 
@@ -117,37 +118,16 @@ function SettingsContent() {
         <div className="lg:w-72 shrink-0">
           <div 
             style={{ top: "calc(var(--settings-header-height, 136px) + 8 * var(--spacing))" }}
-            className="sticky flex flex-row lg:flex-col gap-2 overflow-x-auto lg:overflow-visible pb-4 lg:pb-0 custom-scrollbar snap-x"
+            className="sticky flex flex-col gap-2 pb-4 lg:pb-0"
           >
-            {tabs.map((tab) => {
-              const isActive = activeTab === tab.id;
-              
-              return (
-                <button
-                  key={tab.id}
-                  ref={isActive ? activeTabRef : undefined}
-                  onClick={() => handleTabChange(tab.id)}
-                  className={`group relative flex items-center gap-4 px-4 py-3.5 rounded-xl text-left transition-all duration-300 snap-center min-w-[200px] lg:min-w-0 cursor-pointer active:scale-[0.98] ${
-                    isActive
-                      ? "nav-item-active shadow-sm"
-                      : "text-muted hover:bg-foreground/[0.03] hover:text-foreground"
-                  }`}
-                >
-                  <div className={`size-10 rounded-xl flex items-center justify-center shrink-0 transition-colors duration-300 ${
-                    isActive 
-                      ? "bg-accent/15 text-accent shadow-sm" 
-                      : "bg-foreground/[0.04] group-hover:bg-foreground/[0.08]"
-                  }`}>
-                    <tab.icon className="size-5" />
-                  </div>
-                  
-                  <div>
-                    <div className="text-[14px] font-bold tracking-wide">{tab.label}</div>
-                    <div className={`text-[11px] mt-0.5 hidden lg:block ${isActive ? "text-accent/70" : "text-muted/60"}`}>{tab.desc}</div>
-                  </div>
-                </button>
-              );
-            })}
+            <HookSidebar
+              items={tabs}
+              value={tabs.findIndex((t) => t.id === activeTab)}
+              onChange={(index) => handleTabChange(tabs[index].id)}
+              color="var(--accent, #FC4C01)"
+              dashed={true}
+              className="w-full"
+            />
           </div>
         </div>
 
